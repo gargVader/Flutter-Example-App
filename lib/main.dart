@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_persist/DataProvider.dart';
 
 void main() {
@@ -36,10 +37,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void _incrementCounter() {
+  int count = 0;
+
+  void _incrementCounter() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      widget.count++;
+      count++;
     });
+    prefs.setInt('counter', count);
+  }
+
+  void _fetchCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      count = prefs.getInt('counter') ?? 0;
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fetchCounter();
   }
 
   @override
@@ -58,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
               'You have pushed the button this many times:',
             ),
             Text(
-              '${dataProvider.counter}',
+              '$count',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
@@ -66,7 +85,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          dataProvider.incrementCounter();
+          // dataProvider.incrementCounter();
+          _incrementCounter();
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),
